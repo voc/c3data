@@ -216,7 +216,7 @@ CREATE TABLE public.days (
 );
 
 
-ALTER TABLE public.days OWNER TO postgres;
+ALTER TABLE public.days OWNER TO graphql;
 
 --
 -- Name: days_date(public.days); Type: FUNCTION; Schema: public; Owner: graphql
@@ -265,7 +265,7 @@ CREATE TABLE public.events (
 );
 
 
-ALTER TABLE public.events OWNER TO postgres;
+ALTER TABLE public.events OWNER TO graphql;
 
 --
 -- Name: days_events(public.days); Type: FUNCTION; Schema: public; Owner: graphql
@@ -355,7 +355,7 @@ CREATE TABLE public.people (
 );
 
 
-ALTER TABLE public.people OWNER TO postgres;
+ALTER TABLE public.people OWNER TO graphql;
 
 --
 -- Name: events_persons(public.events, public.event_role[]); Type: FUNCTION; Schema: public; Owner: graphql
@@ -455,7 +455,7 @@ CREATE TABLE public.conferences (
 );
 
 
-ALTER TABLE public.conferences OWNER TO postgres;
+ALTER TABLE public.conferences OWNER TO graphql;
 
 --
 -- Name: conferences_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -469,7 +469,7 @@ CREATE SEQUENCE public.conferences_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.conferences_id_seq OWNER TO postgres;
+ALTER TABLE public.conferences_id_seq OWNER TO graphql;
 
 --
 -- Name: conferences_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -490,7 +490,7 @@ CREATE SEQUENCE public.days_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.days_id_seq OWNER TO postgres;
+ALTER TABLE public.days_id_seq OWNER TO graphql;
 
 --
 -- Name: days_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -518,7 +518,7 @@ CREATE TABLE public.event_people (
 );
 
 
-ALTER TABLE public.event_people OWNER TO postgres;
+ALTER TABLE public.event_people OWNER TO graphql;
 
 --
 -- Name: event_people_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -532,7 +532,7 @@ CREATE SEQUENCE public.event_people_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.event_people_id_seq OWNER TO postgres;
+ALTER TABLE public.event_people_id_seq OWNER TO graphql;
 
 --
 -- Name: event_people_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -553,7 +553,7 @@ CREATE SEQUENCE public.events_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.events_id_seq OWNER TO postgres;
+ALTER TABLE public.events_id_seq OWNER TO graphql;
 
 --
 -- Name: events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -576,7 +576,7 @@ CREATE TABLE public.languages (
 );
 
 
-ALTER TABLE public.languages OWNER TO postgres;
+ALTER TABLE public.languages OWNER TO graphql;
 
 --
 -- Name: languages_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -590,7 +590,7 @@ CREATE SEQUENCE public.languages_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.languages_id_seq OWNER TO postgres;
+ALTER TABLE public.languages_id_seq OWNER TO graphql;
 
 --
 -- Name: languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -611,7 +611,7 @@ CREATE SEQUENCE public.people_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.people_id_seq OWNER TO postgres;
+ALTER TABLE public.people_id_seq OWNER TO graphql;
 
 --
 -- Name: people_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -635,7 +635,7 @@ CREATE TABLE public.rooms (
 );
 
 
-ALTER TABLE public.rooms OWNER TO postgres;
+ALTER TABLE public.rooms OWNER TO graphql;
 
 --
 -- Name: rooms_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -649,7 +649,7 @@ CREATE SEQUENCE public.rooms_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.rooms_id_seq OWNER TO postgres;
+ALTER TABLE public.rooms_id_seq OWNER TO graphql;
 
 --
 -- Name: rooms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -672,7 +672,7 @@ CREATE TABLE public.tracks (
 );
 
 
-ALTER TABLE public.tracks OWNER TO postgres;
+ALTER TABLE public.tracks OWNER TO graphql;
 
 --
 -- Name: tracks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -686,7 +686,7 @@ CREATE SEQUENCE public.tracks_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.tracks_id_seq OWNER TO postgres;
+ALTER TABLE public.tracks_id_seq OWNER TO graphql;
 
 --
 -- Name: tracks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -725,7 +725,7 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.users OWNER TO graphql;
 
 --
 -- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -739,7 +739,7 @@ CREATE SEQUENCE public.users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO postgres;
+ALTER TABLE public.users_id_seq OWNER TO graphql;
 
 --
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -767,7 +767,7 @@ CREATE TABLE public.versions (
 );
 
 
-ALTER TABLE public.versions OWNER TO postgres;
+ALTER TABLE public.versions OWNER TO graphql;
 
 --
 -- Name: versions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -781,7 +781,7 @@ CREATE SEQUENCE public.versions_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.versions_id_seq OWNER TO postgres;
+ALTER TABLE public.versions_id_seq OWNER TO graphql;
 
 --
 -- Name: versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
