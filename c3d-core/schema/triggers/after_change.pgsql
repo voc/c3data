@@ -7,8 +7,8 @@ CREATE OR REPLACE FUNCTION send_change_event() RETURNS TRIGGER AS $$
     notification := json_build_object(
       'table', TG_TABLE_NAME,
       'action', TG_OP,
-      'old', CASE WHEN OLD IS NOT NULL THEN row_to_json(OLD) END,
-      'new', CASE WHEN NEW IS NOT NULL THEN row_to_json(NEW) END
+      'old', CASE WHEN TG_OP <> 'INSERT' THEN row_to_json(OLD) END,
+      'new', CASE WHEN TG_OP <> 'DELETE' THEN row_to_json(NEW) END
     );
     PERFORM pg_notify('change', notification::text);
     RETURN NULL;
