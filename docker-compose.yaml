@@ -1,0 +1,28 @@
+version: '3.4'
+services:
+  c3d-web:
+    build:
+        context: ./c3d-web
+        args:
+          - INSTALL_WATCHMAN=true
+    depends_on: ['c3d-graphql']
+    volumes: ['./c3d-web:/app']
+    env_file: ./c3d-web/env.docker
+    ports:
+      - 8080:8080
+    links: ['c3d-graphql']
+    command: yarn start
+  c3d-graphql:
+    build: c3d-graphql
+    depends_on: ['postgres']
+    command: npx postgraphile -c "postgres://graphql:graphql@postgres/c3data" --watch
+    links: ['postgres']
+    ports: ['5000:5000']
+  postgres:
+    image: postgres:10.5
+    environment:
+      - POSTGRES_DB=c3data
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+    volumes: ['./data/postgres:/var/lib/postgresql/data']
+    ports: ['5432:5432']
