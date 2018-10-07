@@ -2,6 +2,15 @@
 -- PostgreSQL database dump
 --
 
+--- SETUP
+CREATE ROLE graphql WITH PASSWORD 'graphql' LOGIN;
+GRANT CONNECT,CREATE,TEMP ON DATABASE c3data TO graphql;
+CREATE ROLE viewer NOLOGIN;
+GRANT viewer TO graphql;
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
 -- Dumped from database version 9.6.1
 -- Dumped by pg_dump version 9.6.10
 
@@ -16,30 +25,28 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: postgraphile_watch; Type: SCHEMA; Schema: -; Owner: andi
+-- Name: postgraphile_watch; Type: SCHEMA; Schema: -; Owner: graphql
 --
 
 CREATE SCHEMA postgraphile_watch;
-
-
-ALTER SCHEMA postgraphile_watch OWNER TO andi;
+ALTER SCHEMA postgraphile_watch OWNER TO graphql;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- Name: event_role; Type: TYPE; Schema: public; Owner: andi
+-- Name: event_role; Type: TYPE; Schema: public; Owner: graphql
 --
 
 CREATE TYPE public.event_role AS ENUM (
@@ -55,10 +62,10 @@ CREATE TYPE public.event_role AS ENUM (
 );
 
 
-ALTER TYPE public.event_role OWNER TO andi;
+ALTER TYPE public.event_role OWNER TO graphql;
 
 --
--- Name: gender; Type: TYPE; Schema: public; Owner: andi
+-- Name: gender; Type: TYPE; Schema: public; Owner: graphql
 --
 
 CREATE TYPE public.gender AS ENUM (
@@ -68,10 +75,10 @@ CREATE TYPE public.gender AS ENUM (
 );
 
 
-ALTER TYPE public.gender OWNER TO andi;
+ALTER TYPE public.gender OWNER TO graphql;
 
 --
--- Name: link; Type: TYPE; Schema: public; Owner: andi
+-- Name: link; Type: TYPE; Schema: public; Owner: graphql
 --
 
 CREATE TYPE public.link AS (
@@ -80,56 +87,10 @@ CREATE TYPE public.link AS (
 );
 
 
-ALTER TYPE public.link OWNER TO andi;
+ALTER TYPE public.link OWNER TO graphql;
 
 --
--- Name: notify_watchers_ddl(); Type: FUNCTION; Schema: postgraphile_watch; Owner: andi
---
-
-CREATE FUNCTION postgraphile_watch.notify_watchers_ddl() RETURNS event_trigger
-    LANGUAGE plpgsql
-    AS $$
-begin
-  perform pg_notify(
-    'postgraphile_watch',
-    json_build_object(
-      'type',
-      'ddl',
-      'payload',
-      (select json_agg(json_build_object('schema', schema_name, 'command', command_tag)) from pg_event_trigger_ddl_commands() as x)
-    )::text
-  );
-end;
-$$;
-
-
-ALTER FUNCTION postgraphile_watch.notify_watchers_ddl() OWNER TO andi;
-
---
--- Name: notify_watchers_drop(); Type: FUNCTION; Schema: postgraphile_watch; Owner: andi
---
-
-CREATE FUNCTION postgraphile_watch.notify_watchers_drop() RETURNS event_trigger
-    LANGUAGE plpgsql
-    AS $$
-begin
-  perform pg_notify(
-    'postgraphile_watch',
-    json_build_object(
-      'type',
-      'drop',
-      'payload',
-      (select json_agg(distinct x.schema_name) from pg_event_trigger_dropped_objects() as x)
-    )::text
-  );
-end;
-$$;
-
-
-ALTER FUNCTION postgraphile_watch.notify_watchers_drop() OWNER TO andi;
-
---
--- Name: before_change(); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: before_change(); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.before_change() RETURNS trigger
@@ -145,10 +106,9 @@ CREATE FUNCTION public.before_change() RETURNS trigger
     $$;
 
 
-ALTER FUNCTION public.before_change() OWNER TO andi;
+ALTER FUNCTION public.before_change() OWNER TO graphql;
 
 SET default_tablespace = '';
-
 SET default_with_oids = false;
 
 --
@@ -167,7 +127,7 @@ CREATE TABLE public.days (
 ALTER TABLE public.days OWNER TO postgres;
 
 --
--- Name: days_date(public.days); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: days_date(public.days); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.days_date(d public.days) RETURNS date
@@ -175,7 +135,7 @@ CREATE FUNCTION public.days_date(d public.days) RETURNS date
     AS $$ SELECT d.start_date::date $$;
 
 
-ALTER FUNCTION public.days_date(d public.days) OWNER TO andi;
+ALTER FUNCTION public.days_date(d public.days) OWNER TO graphql;
 
 --
 -- Name: events; Type: TABLE; Schema: public; Owner: postgres
@@ -216,13 +176,13 @@ CREATE TABLE public.events (
 ALTER TABLE public.events OWNER TO postgres;
 
 --
--- Name: days_events(public.days); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: days_events(public.days); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.days_events(d public.days) RETURNS public.events
     LANGUAGE sql STABLE
     AS $$
-SELECT e.* 
+SELECT e.*
 FROM events e
 WHERE d.conference_id = e.conference_id
 	AND e.start_date BETWEEN d.start_date AND d.end_date
@@ -230,16 +190,16 @@ ORDER BY e.start_date;
 $$;
 
 
-ALTER FUNCTION public.days_events(d public.days) OWNER TO andi;
+ALTER FUNCTION public.days_events(d public.days) OWNER TO graphql;
 
 --
--- Name: events_day(public.events); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: events_day(public.events); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.events_day(e public.events) RETURNS public.days
     LANGUAGE sql STABLE
     AS $$
-SELECT d.* 
+SELECT d.*
 FROM days d
 WHERE d.conference_id = e.conference_id
   AND e.start_date BETWEEN d.start_date AND d.end_date
@@ -248,16 +208,16 @@ LIMIT 1;
 $$;
 
 
-ALTER FUNCTION public.events_day(e public.events) OWNER TO andi;
+ALTER FUNCTION public.events_day(e public.events) OWNER TO graphql;
 
 --
--- Name: events_day_index(public.events); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: events_day_index(public.events); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.events_day_index(e public.events) RETURNS smallint
     LANGUAGE sql STABLE
     AS $$
-SELECT d.index AS day 
+SELECT d.index AS day
 FROM days d
 WHERE d.conference_id = e.conference_id
   AND e.start_date BETWEEN d.start_date AND d.end_date
@@ -266,10 +226,10 @@ LIMIT 1;
 $$;
 
 
-ALTER FUNCTION public.events_day_index(e public.events) OWNER TO andi;
+ALTER FUNCTION public.events_day_index(e public.events) OWNER TO graphql;
 
 --
--- Name: events_duration_time(public.events); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: events_duration_time(public.events); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.events_duration_time(e public.events) RETURNS text
@@ -277,7 +237,7 @@ CREATE FUNCTION public.events_duration_time(e public.events) RETURNS text
     AS $$ SELECT to_char(e.duration, 'HH24:MI') $$;
 
 
-ALTER FUNCTION public.events_duration_time(e public.events) OWNER TO andi;
+ALTER FUNCTION public.events_duration_time(e public.events) OWNER TO graphql;
 
 --
 -- Name: people; Type: TABLE; Schema: public; Owner: postgres
@@ -306,15 +266,15 @@ CREATE TABLE public.people (
 ALTER TABLE public.people OWNER TO postgres;
 
 --
--- Name: events_persons(public.events, public.event_role[]); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: events_persons(public.events, public.event_role[]); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.events_persons(e public.events, roles public.event_role[]) RETURNS SETOF public.people
     LANGUAGE sql STABLE
     AS $$
 	SELECT p.* FROM people p, event_people ep
-	WHERE e.id = ep.event_id AND ep.person_id = p.id AND ep.event_role IN( SELECT 
-		CASE WHEN roles IS NULL 
+	WHERE e.id = ep.event_id AND ep.person_id = p.id AND ep.event_role IN( SELECT
+		CASE WHEN roles IS NULL
 			THEN unnest(ARRAY['speaker', 'moderator'])::event_role
 			ELSE unnest(roles)
 		END
@@ -322,26 +282,26 @@ CREATE FUNCTION public.events_persons(e public.events, roles public.event_role[]
 $$;
 
 
-ALTER FUNCTION public.events_persons(e public.events, roles public.event_role[]) OWNER TO andi;
+ALTER FUNCTION public.events_persons(e public.events, roles public.event_role[]) OWNER TO graphql;
 
 --
--- Name: events_room_name(public.events); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: events_room_name(public.events); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.events_room_name(e public.events) RETURNS text
     LANGUAGE sql STABLE
     AS $$
-SELECT r.name 
+SELECT r.name
 FROM rooms r
 WHERE r.conference_id = e.conference_id
   AND r.id = e.room_id
 $$;
 
 
-ALTER FUNCTION public.events_room_name(e public.events) OWNER TO andi;
+ALTER FUNCTION public.events_room_name(e public.events) OWNER TO graphql;
 
 --
--- Name: events_start_time(public.events); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: events_start_time(public.events); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.events_start_time(e public.events) RETURNS text
@@ -349,10 +309,10 @@ CREATE FUNCTION public.events_start_time(e public.events) RETURNS text
     AS $$ SELECT to_char(e.start_date, 'HH24:MI') $$;
 
 
-ALTER FUNCTION public.events_start_time(e public.events) OWNER TO andi;
+ALTER FUNCTION public.events_start_time(e public.events) OWNER TO graphql;
 
 --
--- Name: send_change_event(); Type: FUNCTION; Schema: public; Owner: andi
+-- Name: send_change_event(); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
 CREATE FUNCTION public.send_change_event() RETURNS trigger
@@ -376,7 +336,7 @@ CREATE FUNCTION public.send_change_event() RETURNS trigger
     $$;
 
 
-ALTER FUNCTION public.send_change_event() OWNER TO andi;
+ALTER FUNCTION public.send_change_event() OWNER TO graphql;
 
 --
 -- Name: conferences; Type: TABLE; Schema: public; Owner: postgres
@@ -1362,27 +1322,6 @@ ALTER TABLE ONLY public.tracks
 ALTER TABLE ONLY public.versions
     ADD CONSTRAINT versions_conference_id_fkey FOREIGN KEY (conference_id) REFERENCES public.conferences(id);
 
-
---
--- Name: postgraphile_watch_ddl; Type: EVENT TRIGGER; Schema: -; Owner: andi
---
-
-CREATE EVENT TRIGGER postgraphile_watch_ddl ON ddl_command_end
-         WHEN TAG IN ('ALTER AGGREGATE', 'ALTER DOMAIN', 'ALTER EXTENSION', 'ALTER FOREIGN TABLE', 'ALTER FUNCTION', 'ALTER POLICY', 'ALTER SCHEMA', 'ALTER TABLE', 'ALTER TYPE', 'ALTER VIEW', 'COMMENT', 'CREATE AGGREGATE', 'CREATE DOMAIN', 'CREATE EXTENSION', 'CREATE FOREIGN TABLE', 'CREATE FUNCTION', 'CREATE INDEX', 'CREATE POLICY', 'CREATE RULE', 'CREATE SCHEMA', 'CREATE TABLE', 'CREATE TABLE AS', 'CREATE VIEW', 'DROP AGGREGATE', 'DROP DOMAIN', 'DROP EXTENSION', 'DROP FOREIGN TABLE', 'DROP FUNCTION', 'DROP INDEX', 'DROP OWNED', 'DROP POLICY', 'DROP RULE', 'DROP SCHEMA', 'DROP TABLE', 'DROP TYPE', 'DROP VIEW', 'GRANT', 'REVOKE', 'SELECT INTO')
-   EXECUTE PROCEDURE postgraphile_watch.notify_watchers_ddl();
-
-
-ALTER EVENT TRIGGER postgraphile_watch_ddl OWNER TO andi;
-
---
--- Name: postgraphile_watch_drop; Type: EVENT TRIGGER; Schema: -; Owner: andi
---
-
-CREATE EVENT TRIGGER postgraphile_watch_drop ON sql_drop
-   EXECUTE PROCEDURE postgraphile_watch.notify_watchers_drop();
-
-
-ALTER EVENT TRIGGER postgraphile_watch_drop OWNER TO andi;
 
 --
 -- PostgreSQL database dump complete
