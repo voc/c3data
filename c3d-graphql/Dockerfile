@@ -10,3 +10,5 @@ ADD . /app/
 
 #RUN yarn build
 #CMD npx postgraphile -c postgres:///c3data -w -h 0.0.0.0 -p 5000
+
+EXPOSE 5000

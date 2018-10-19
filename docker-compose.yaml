@@ -15,7 +15,7 @@ services:
   c3d-graphql:
     build: c3d-graphql
     depends_on: ['postgres']
-    command: npx postgraphile -c "postgres://graphql:graphql@postgres/c3data" --watch
+    command: npx postgraphile -c "postgres://graphql:graphql@postgres/c3data" -n 0.0.0.0 --watch
     links: ['postgres']
     ports: ['5000:5000']
   postgres:
