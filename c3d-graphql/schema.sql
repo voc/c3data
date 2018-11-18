@@ -365,11 +365,12 @@ CREATE FUNCTION public.events_persons(e public.events, roles public.event_role[]
     LANGUAGE sql STABLE
     AS $$
 	SELECT p.* FROM people p, event_people ep
-	WHERE e.id = ep.event_id AND ep.person_id = p.id AND ep.event_role IN( SELECT
-		CASE WHEN roles IS NULL
-			THEN unnest(ARRAY['speaker', 'moderator'])::event_role
-			ELSE unnest(roles)
-		END
+    WHERE e.id = ep.event_id AND ep.person_id = p.id AND ep.event_role IN( SELECT
+            unnest( CASE WHEN roles IS NULL
+                    THEN ARRAY['speaker', 'moderator']::event_role[]
+                    ELSE roles
+                END
+            )::event_role
 	)
 $$;
 
