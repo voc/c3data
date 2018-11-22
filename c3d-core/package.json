@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "node-pg-migrate": "^3.14.0",
+    "pg": "^7.6.1"
+  },
+  "scripts": {
+    "migrate": "node-pg-migrate",
+    "migration:new": "DATABASE_URL=postgres node-pg-migrate create migration --migration-file-language ts"
+  }
+}
