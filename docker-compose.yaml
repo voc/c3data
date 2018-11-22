@@ -12,12 +12,16 @@ services:
       - 8080:8080
     links: ['c3d-graphql']
     command: yarn start
+    environment:
+      - PORT=8080
   c3d-graphql:
     build: c3d-graphql
     depends_on: ['postgres']
     command: npx postgraphile -c "postgres://graphql:graphql@postgres/c3data" -n 0.0.0.0 --watch
     links: ['postgres']
     ports: ['5000:5000']
+    environment:
+      - PORT=5000
   postgres:
     image: postgres:10.5
     environment:
