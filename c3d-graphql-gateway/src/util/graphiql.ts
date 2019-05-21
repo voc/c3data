@@ -1,10 +1,5 @@
 import * as express from 'express';
 import * as url from 'url';
-import {
-  GraphQLOptions,
-  HttpQueryError,
-  runHttpQuery,
-} from 'apollo-server-core';
 import { print, parse } from 'graphql';
 import * as GraphiQL from 'apollo-server-module-graphiql';
 
@@ -40,7 +35,7 @@ export function graphiqlExpress(options: GraphiQL.GraphiQLData | ExpressGraphiQL
 				res.write(graphiqlString);
 				res.end();
 			},
-			(error) => next(error),
+			(error: any) => next(error),
 		);
 	};
 

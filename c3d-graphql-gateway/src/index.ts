@@ -3,7 +3,7 @@ import { createServer } from 'http';
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
+import { ApolloServer } from 'apollo-server-express';
 import { execute, subscribe, GraphQLSchema } from 'graphql';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 
@@ -11,7 +11,7 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { graphiqlExpress } from './util/graphiql';
 import mergeSchemas from './schema';
 //import schemaDirectives from './schema/directives';
-const schemaDirectives = null;
+//const schemaDirectives = [];
 
 
 const isDevelopment = true;
@@ -20,30 +20,22 @@ const app = express();
 async function run() {
 	app.use('*', cors({ origin: '*' }));
 
-	const cacheMiddleware = cache.createMiddleware({
-		isEnabled: false,
-		defaultCacheTTL: 10 * 1000,
-		shouldAttachMembership: (req, res) => !!req.header('x-add-membership'),
-	});
-
-	app.use(cacheMiddleware);
-
 	const graphqlPath = '/graphql';
 	const schema: GraphQLSchema = await mergeSchemas();
 
 	// setup directives
-	SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives);
+	//SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives);
 
-  const port = process.env.port || 5000;
+	const port = process.env.port || 5000;
 	const playgroundOptions: any = isDevelopment
 			? {
-					endpoint: graphqlPath,
-					subscriptionEndpoint: `ws://localhost:${port}/subscriptions`,
-					settings: {
-						// Force setting, workaround: https://github.com/prisma/graphql-playground/issues/790
-						'editor.theme': 'dark',
-						'editor.cursorShape': 'line', // possible values: 'line', 'block', 'underline'
-					},
+				endpoint: graphqlPath,
+				subscriptionEndpoint: `ws://localhost:${port}/subscriptions`,
+				settings: {
+					// Force setting, workaround: https://github.com/prisma/graphql-playground/issues/790
+					'editor.theme': 'dark',
+					'editor.cursorShape': 'line', // possible values: 'line', 'block', 'underline'
+				},
 			  }
 			: false;
 
