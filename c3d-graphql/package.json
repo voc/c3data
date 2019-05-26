@@ -1,15 +1,36 @@
 {
+  "name": "c3d-graphql",
+  "version": "0.2.0",
+  "private": true,
   "dependencies": {
-    "@graphile-contrib/pg-simplify-inflector": "^3.0.0",
+    "@fullstackio/postgraphile-upsert-plugin": "^1.4.0",
+    "@graphile-contrib/pg-simplify-inflector": "^5.0.0-beta.1",
+    "apollo-server": "^2.5.0",
     "express": "^4.16.4",
+    "graphile-build-pg": "^4.4.0",
     "graphile-upsert-plugin": "^1.0.0",
+    "graphql": "^14.3.1",
+    "nodemon": "^1.19.1",
+    "pg": "^7.11.0",
     "postgraphile": "^4.3.3",
     "postgraphile-apollo-server": "^0.1.1",
-    "postgraphile-plugin-connection-filter": "^1.0.0-beta.20",
+    "postgraphile-plugin-connection-filter": "^1.0.1",
     "postgraphile-plugin-nested-mutations": "^1.0.0-alpha.10"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "start:direct": "postgraphile --plugins postgraphile-plugin-connection-filter -w -n 0.0.0.0"
+    "start": "if test \"$NODE_ENV\" = \"production\" ; then yarn run start:production ; else yarn run start:development ; fi",
+    "start:development": "nodemon --config nodemon.json",
+    "start:production": "node dist/index.js",
+    "build": "yarn build:clean && yarn build:transpile",
+    "build:clean": "rm -rf .dist/*",
+    "build:transpile": "tsc",
+    "test": "yarn test:lint && yarn test:unit",
+    "test:lint": "node ./node_modules/eslint/bin/eslint.js ./src",
+    "test:unit": "NODE_ENV=test jest --env=jsdom --coverage",
+    "test:unit:watch": "NODE_ENV=test jest --env=jsdom --watch"
+  },
+  "devDependencies": {
+    "ts-node": "^8.2.0",
+    "typescript": "^3.4.5"
   }
 }
