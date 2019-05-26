@@ -26,7 +26,7 @@ async function run() {
 	// setup directives
 	//SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives);
 
-	const port = process.env.port || 5000;
+	const port = process.env.PORT || 5000;
 	const playgroundOptions: any = isDevelopment
 			? {
 				endpoint: graphqlPath,
