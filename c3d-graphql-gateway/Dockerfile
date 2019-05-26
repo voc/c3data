@@ -11,7 +11,7 @@ RUN if [ "$INSTALL_WATCHMAN" = "true" ] ; then ./scripts/installWatchman.sh ; el
 
 # INSTALL NODEJS DEPENDENCIES
 ENV NODE_ENV=production
-ADD package.json yarn.lock .npmrc /app/
+ADD package.json yarn.lock /app/
 RUN unset NODE_ENV; yarn install
 
 ADD . /app/

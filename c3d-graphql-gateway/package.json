@@ -12,6 +12,7 @@
     "apollo-server-module-graphiql": "^1.4.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "cross-fetch": "^3.0.3",
     "express": "^4.16.4",
     "graphql": "^14.0.2",
     "http-link-dataloader": "^0.1.6",
