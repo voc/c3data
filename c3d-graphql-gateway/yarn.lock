@@ -738,6 +738,11 @@ copy-descriptor@^0.1.0:
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
 
+core-js@3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.1.3.tgz#95700bca5f248f5f78c0ec63e784eca663ec4138"
+  integrity sha512-PWZ+ZfuaKf178BIAg+CRsljwjIMRV8MY00CbZczkR6Zk5LfkSkjGoaab3+bqRQWVITNZxQB7TFYz+CFcyuamvA==
+
 core-js@3.0.0-beta.13:
   version "3.0.0-beta.13"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.0.0-beta.13.tgz#7732c69be5e4758887917235fe7c0352c4cb42a1"
@@ -776,6 +781,14 @@ cross-fetch@2.2.2:
     node-fetch "2.1.2"
     whatwg-fetch "2.0.4"
 
+cross-fetch@^2.2.2:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-2.2.3.tgz#e8a0b3c54598136e037f8650f8e823ccdfac198e"
+  integrity sha512-PrWWNH3yL2NYIb/7WF/5vFG3DCQiXDOVf8k3ijatbrtnwNuhMWLC7YF7uqf53tbTFDzHIUD8oITw4Bxt8ST3Nw==
+  dependencies:
+    node-fetch "2.1.2"
+    whatwg-fetch "2.0.4"
+
 cross-fetch@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.0.3.tgz#b988beab275939cb77ad4e362c873f7fa8a221a5"
@@ -802,6 +815,11 @@ dataloader@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-1.4.0.tgz#bca11d867f5d3f1b9ed9f737bd15970c65dff5c8"
   integrity sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==
+
+dataloader@~1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-1.3.0.tgz#6fec5be4b30a712e4afd30b86b4334566b97673b"
+  integrity sha1-b+xb5LMKcS5K/TC4a0M0VmuXZzs=
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
@@ -1230,6 +1248,16 @@ graphql-tools@^4.0.0:
     iterall "^1.1.3"
     uuid "^3.1.0"
 
+graphql-transformer@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/graphql-transformer/-/graphql-transformer-0.2.0.tgz#7bfa969103ad8878e372456043504074f6e2acf1"
+  integrity sha512-YOU4sCiae23AJ90aflZ3npgp19GhQTOxWjJQuX+rL8LPBsuhOm9izO56PG6G4DVTkPUkJ5Qpbqp+vXw6+D63OQ==
+
+graphql-type-json@^0.2.1:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/graphql-type-json/-/graphql-type-json-0.2.4.tgz#545af27903e40c061edd30840a272ea0a49992f9"
+  integrity sha512-/tq02ayMQjrG4oDFDRLLrPk0KvJXue0nVXoItBe7uAdbNXjQUu+HYCBdAmPLQoseVzUKKMzrhq2P/sfI76ON6w==
+
 graphql-upload@^8.0.2:
   version "8.0.6"
   resolved "https://registry.yarnpkg.com/graphql-upload/-/graphql-upload-8.0.6.tgz#90fb6246962d953b64d9ddabd6472d8e8b116ee0"
@@ -1239,6 +1267,18 @@ graphql-upload@^8.0.2:
     fs-capacitor "^2.0.1"
     http-errors "^1.7.2"
     object-path "^0.11.4"
+
+graphql-weaver@^0.13.3:
+  version "0.13.3"
+  resolved "https://registry.yarnpkg.com/graphql-weaver/-/graphql-weaver-0.13.3.tgz#7e422066efe92bcfe9402cb994b792466d5ebb3f"
+  integrity sha512-Mq5PNSIWMR9H+kuJ55/ClHDibRQubK1FvbYkZSs6AsZeULAR2CPCFJdRtPQBNeJtjitAlGJZaUnjNheiiOEaIQ==
+  dependencies:
+    cross-fetch "^2.2.2"
+    dataloader "~1.3.0"
+    graphql-transformer "0.2.0"
+    graphql-type-json "^0.2.1"
+    line-column "^1.0.2"
+    trace-error "~0.0.7"
 
 graphql@^14.0.2:
   version "14.3.1"
@@ -1563,7 +1603,7 @@ is-windows@^1.0.2:
   resolved "https://registry.yarnpkg.com/is-windows/-/is-windows-1.0.2.tgz#d1850eb9791ecd18e6182ce12a30f396634bb19d"
   integrity sha512-eXK1UInq2bPmjyX6e3VHIzMLobc4J94i4AWn+Hpq3OU5KkrRC96OAcR3PRJ/pGu6m8TRnBHP9dkXQVsT/COVIA==
 
-isarray@1.0.0, isarray@~1.0.0:
+isarray@1.0.0, isarray@^1.0.0, isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
@@ -1620,6 +1660,14 @@ latest-version@^3.0.0:
   integrity sha1-ogU4P+oyKzO1rjsYq+4NwvNW7hU=
   dependencies:
     package-json "^4.0.0"
+
+line-column@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/line-column/-/line-column-1.0.2.tgz#d25af2936b6f4849172b312e4792d1d987bc34a2"
+  integrity sha1-0lryk2tvSEkXKzEuR5LR2Ye8NKI=
+  dependencies:
+    isarray "^1.0.0"
+    isobject "^2.0.0"
 
 lodash.sortby@^4.7.0:
   version "4.7.0"
@@ -2565,6 +2613,14 @@ touch@^3.1.0:
   dependencies:
     nopt "~1.0.10"
 
+trace-error@~0.0.7:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/trace-error/-/trace-error-0.0.10.tgz#0fee25016f5b07deb642cf70729e925da71b6f10"
+  integrity sha512-hanV5+pujOal/n6MM5iRcUSP2F6DJ+O3vOICb9CzkFPi6863TyktlQBakaGcg1nK9kZsXwYvE5+eqGllB2ljzQ==
+  dependencies:
+    core-js "3"
+    weakmap "0.0.6"
+
 ts-invariant@^0.3.2:
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/ts-invariant/-/ts-invariant-0.3.3.tgz#b5742b1885ecf9e29c31a750307480f045ec0b16"
@@ -2718,6 +2774,11 @@ vary@^1, vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
+
+weakmap@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/weakmap/-/weakmap-0.0.6.tgz#0c4fbde02e3b371f9222013fc6632a5c45419b29"
+  integrity sha1-DE+94C47Nx+SIgE/xmMqXEVBmyk=
 
 whatwg-fetch@2.0.4:
   version "2.0.4"
