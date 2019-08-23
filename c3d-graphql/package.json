@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "@graphile-contrib/pg-simplify-inflector": "^3.0.0",
+    "@graphile-contrib/pg-simplify-inflector": "^5.0.0-beta.1",
     "express": "^4.16.4",
     "graphile-upsert-plugin": "^1.0.0",
-    "postgraphile": "^4.3.3",
+    "postgraphile": "^4.4.3",
     "postgraphile-plugin-connection-filter": "^1.0.0-beta.20",
-    "postgraphile-plugin-nested-mutations": "^1.0.0-alpha.10"
+    "postgraphile-plugin-nested-mutations": "^1.0.1"
   },
   "scripts": {
     "start": "node src/index.js",
