@@ -174,8 +174,8 @@ ALTER TYPE public.gender OWNER TO graphql;
 --
 
 CREATE TYPE public.link AS (
-	title text,
-	url text
+    title text,
+    url text
 );
 
 
@@ -191,12 +191,12 @@ CREATE FUNCTION public.before_change() RETURNS trigger
       DECLARE
         notification json;
       BEGIN
-        NEW.updated_at = now();
-
+        IF TG_OP <> 'DELETE' THEN
+            NEW.updated_at = now();
+        END IF;
         RETURN NEW;
       END;
     $$;
-
 
 ALTER FUNCTION public.before_change() OWNER TO graphql;
 
@@ -250,7 +250,7 @@ CREATE TABLE public.events (
     track_id integer,
     room_id integer,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
     average_rating double precision,
     event_ratings_count integer DEFAULT 0,
     note text,
@@ -277,7 +277,7 @@ CREATE FUNCTION public.days_events(d public.days) RETURNS public.events
 SELECT e.*
 FROM events e
 WHERE d.conference_id = e.conference_id
-	AND e.start_date BETWEEN d.start_date AND d.end_date
+    AND e.start_date BETWEEN d.start_date AND d.end_date
 ORDER BY e.start_date;
 $$;
 
@@ -347,7 +347,7 @@ CREATE TABLE public.people (
     abstract text,
     description text,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
     user_id integer,
     note text,
     include_in_mailings boolean DEFAULT false NOT NULL,
@@ -364,14 +364,14 @@ ALTER TABLE public.people OWNER TO graphql;
 CREATE FUNCTION public.events_persons(e public.events, roles public.event_role[]) RETURNS SETOF public.people
     LANGUAGE sql STABLE
     AS $$
-	SELECT p.* FROM people p, event_people ep
+    SELECT p.* FROM people p, event_people ep
     WHERE e.id = ep.event_id AND ep.person_id = p.id AND ep.event_role IN( SELECT
             unnest( CASE WHEN roles IS NULL
                     THEN ARRAY['speaker', 'moderator']::event_role[]
                     ELSE roles
                 END
             )::event_role
-	)
+    )
 $$;
 
 
@@ -442,7 +442,7 @@ CREATE TABLE public.conferences (
     timezone character varying(255) DEFAULT 'Berlin'::character varying NOT NULL,
     feedback_enabled boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now(),
     email character varying(255),
     program_export_base_url character varying(255),
     schedule_version character varying(255),
@@ -573,7 +573,7 @@ CREATE TABLE public.languages (
     attachable_id integer,
     attachable_type character varying(255),
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    updated_at timestamp with time zone
 );
 
 
@@ -631,7 +631,7 @@ CREATE TABLE public.rooms (
     name character varying(255) NOT NULL,
     size integer,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
     rank integer
 );
 
@@ -668,7 +668,7 @@ CREATE TABLE public.tracks (
     conference_id integer,
     name character varying(255) NOT NULL,
     created_at timestamp without time zone DEFAULT '2018-10-07 14:06:49.211567'::timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone,
     color character varying(255) DEFAULT 'fefd7f'::character varying
 );
 
@@ -715,7 +715,7 @@ CREATE TABLE public.users (
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone,
     role character varying(255) DEFAULT 'submitter'::character varying,
     encrypted_password character varying DEFAULT ''::character varying NOT NULL,
     reset_password_sent_at timestamp without time zone,
@@ -783,245 +783,6 @@ CREATE SEQUENCE public.versions_id_seq
 
 
 ALTER TABLE public.versions_id_seq OWNER TO graphql;
-
---
--- Name: versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.versions_id_seq OWNED BY public.versions.id;
-
-
---
--- Name: conferences id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.conferences ALTER COLUMN id SET DEFAULT nextval('public.conferences_id_seq'::regclass);
-
-
---
--- Name: days id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.days ALTER COLUMN id SET DEFAULT nextval('public.days_id_seq'::regclass);
-
-
---
--- Name: event_people id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.event_people ALTER COLUMN id SET DEFAULT nextval('public.event_people_id_seq'::regclass);
-
-
---
--- Name: events id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.events ALTER COLUMN id SET DEFAULT nextval('public.events_id_seq'::regclass);
-
-
---
--- Name: languages id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.languages ALTER COLUMN id SET DEFAULT nextval('public.languages_id_seq'::regclass);
-
-
---
--- Name: people id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.people ALTER COLUMN id SET DEFAULT nextval('public.people_id_seq'::regclass);
-
-
---
--- Name: rooms id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.rooms ALTER COLUMN id SET DEFAULT nextval('public.rooms_id_seq'::regclass);
-
-
---
--- Name: tracks id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tracks ALTER COLUMN id SET DEFAULT nextval('public.tracks_id_seq'::regclass);
-
-
---
--- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
-
-
---
--- Name: versions id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.versions ALTER COLUMN id SET DEFAULT nextval('public.versions_id_seq'::regclass);
-
-
---
--- Data for Name: conferences; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.conferences (id, acronym, title, timezone, feedback_enabled, created_at, updated_at, email, program_export_base_url, schedule_version, schedule_public, color, default_recording_license, parent_id, logo, start_date, end_date) FROM stdin;
-4	geekend2018	Geekend Q4 2018 adfas	Berlin	f	2018-10-07 12:09:36.208968+02	2018-10-07 12:09:36.208968+02	\N	\N	\N	f	\N	\N	\N	\N	2018-10-06 00:00:00+02	2018-10-06 00:00:00+02
-1	test3	Foo Conferencefoofoo foo foofoo	Berlin	f	2018-10-07 12:05:04.051653+02	2018-10-07 13:01:33.765192+02	\N	\N	\N	f	\N	\N	\N	\N	\N	\N
-\.
-
-
---
--- Name: conferences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.conferences_id_seq', 6, true);
-
-
---
--- Data for Name: days; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.days (id, conference_id, start_date, end_date, index) FROM stdin;
-2	4	2018-10-06 10:00:00+02	2018-10-07 03:00:00+02	1
-\.
-
-
---
--- Name: days_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.days_id_seq', 2, true);
-
-
---
--- Data for Name: event_people; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.event_people (id, event_id, person_id, event_role, role_state, comment, created_at, updated_at, confirmation_token, notification_subject, notification_body) FROM stdin;
-3	1	2	speaker	\N	\N	2018-10-07 15:44:36.415521+02	2018-10-07 15:45:03.187973+02	\N	\N	\N
-4	2	3	speaker	\N	\N	2018-10-07 15:44:36.415521+02	2018-10-07 15:45:03.187973+02	\N	\N	\N
-\.
-
-
---
--- Name: event_people_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.event_people_id_seq', 4, true);
-
-
---
--- Data for Name: events; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.events (id, conference_id, title, subtitle, event_type, slug, state, language, start_date, abstract, description, public, logo, track_id, room_id, created_at, updated_at, average_rating, event_ratings_count, note, guid, do_not_record, recording_license, tech_rider, links, attachments, duration, local_id) FROM stdin;
-2	4	How to RELIVE	\N	talk	geekend2018-2-how_to_relive	new	de	2018-10-06 22:10:00+02	\N	\N	t	\N	\N	3	2018-10-07 14:15:58.717243+02	2018-10-07 15:31:05.207378+02	\N	0	\N	4e876909-16b1-5520-82a8-07f257a20faf	f	\N	\N	\N	\N	00:15:00	2
-1	4	(W)o (i)st mei(n)e Winke(k)atze?	\N	talk	geekend2018-1-w_o_i_st_mei_n_e_winke_k_atze	new	de	2018-10-06 22:00:00+02	\N	\N	t	\N	\N	3	2018-10-07 14:11:53.231824+02	2018-10-07 15:31:05.207378+02	\N	0	\N	6f3f49b6-2f08-50ff-a45c-aa728047dd5e	f	\N	\N	\N	\N	00:15:00	1
-5	1	tst	\N	talk	ddd	new	\N	2018-10-07 14:15:58.717243+02	\N	\N	t	\N	\N	\N	2018-10-07 15:20:27.885291+02	2018-10-07 15:31:05.207378+02	\N	0	\N	4e876909-16b1-5520-82a8-07f257a20faa	f	\N	\N	\N	\N	00:15:00	1
-\.
-
-
---
--- Name: events_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.events_id_seq', 5, true);
-
-
---
--- Data for Name: languages; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.languages (id, code, attachable_id, attachable_type, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Name: languages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.languages_id_seq', 1, false);
-
-
---
--- Data for Name: people; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.people (id, first_name, last_name, public_name, email, email_public, gender, avatar, abstract, description, created_at, updated_at, user_id, note, include_in_mailings, use_gravatar) FROM stdin;
-1	admin	admin	admin_127	admin@example.org	t	\N	\N	\N	\N	2018-10-07 08:48:56.219843+02	2018-10-07 08:48:56.403675+02	1	\N	f	f
-2			meise	\N	t	\N	\N	\N	\N	2018-10-07 15:36:10.495535+02	2018-10-07 15:36:10.495535+02	\N	\N	f	f
-3			florolf	\N	t	\N	\N	\N	\N	2018-10-07 15:36:19.15047+02	2018-10-07 15:36:19.15047+02	\N	\N	f	f
-\.
-
-
---
--- Name: people_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.people_id_seq', 3, true);
-
-
---
--- Data for Name: rooms; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.rooms (id, conference_id, name, size, created_at, updated_at, rank) FROM stdin;
-3	4	CCCB	\N	2018-10-07 14:09:14.363768+02	2018-10-07 14:09:14.363768+02	\N
-\.
-
-
---
--- Name: rooms_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.rooms_id_seq', 3, true);
-
-
---
--- Data for Name: tracks; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.tracks (id, conference_id, name, created_at, updated_at, color) FROM stdin;
-\.
-
-
---
--- Name: tracks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.tracks_id_seq', 1, false);
-
-
---
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.users (id, email, reset_password_token, remember_created_at, remember_token, sign_in_count, current_sign_in_at, last_sign_in_at, current_sign_in_ip, last_sign_in_ip, confirmation_token, confirmed_at, confirmation_sent_at, created_at, updated_at, role, encrypted_password, reset_password_sent_at, unconfirmed_email, failed_attempts, unlock_token, locked_at) FROM stdin;
-1	admin@example.org	\N	\N	\N	0	\N	\N	\N	\N	\N	2018-10-07 08:48:56.38481	\N	2018-10-07 08:48:56.400848	2018-10-07 08:48:56.400848	admin	$2a$11$MXZtj8J/INPsMT.rZ1nqVuQoFB2yXWDFBMlkbKIWgZyQGLJFd8yXO	\N	\N	0	\N	\N
-\.
-
-
---
--- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.users_id_seq', 1, true);
-
-
---
--- Data for Name: versions; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.versions (id, item_type, item_id, event, whodunnit, object, created_at, conference_id, associated_id, associated_type, object_changes) FROM stdin;
-\.
-
-
---
--- Name: versions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.versions_id_seq', 1, false);
 
 
 --
