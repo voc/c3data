@@ -5,6 +5,7 @@ const SimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector
 const NestedMutationsPlugin = require('postgraphile-plugin-nested-mutations');
 const UpsertPlugin = require('graphile-upsert-plugin');
 
+// TODO: Combine Nested Mutations with Upsert, c.f. https://github.com/mlipscombe/postgraphile-plugin-nested-mutations/issues/13
 
 const app = express();
 
@@ -20,12 +21,12 @@ app.use(
 			connectionFilterLists: false
 		},
 		watchPg: true,
-		disableQueryLog: process.env.NODE_ENV === 'development',
-		//pgDefaultRole: "viewer"
+		disableQueryLog: process.env.NODE_ENV !== 'development',
+		pgDefaultRole: process.env.NODE_ENV === 'development' ? 'graphql' : 'viewer'
 	})
 );
 
 const port = process.env.PORT || 5001
 app.listen(port, () => {
-    console.log(`=> server running at http://localhost:${port}/graphiql`);
-  });
+	console.log(`=> server running at http://localhost:${port}/graphiql`);
+});
