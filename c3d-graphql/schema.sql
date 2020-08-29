@@ -185,7 +185,7 @@ ALTER TYPE public.link OWNER TO graphql;
 -- Name: before_change(); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
-CREATE FUNCTION public.before_change() RETURNS trigger
+CREATE OR REPLACE FUNCTION public.before_change() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
       DECLARE
@@ -208,7 +208,7 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE public.days (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     conference_id bigint,
     start_date timestamp with time zone,
     end_date timestamp with time zone,
@@ -218,23 +218,13 @@ CREATE TABLE public.days (
 
 ALTER TABLE public.days OWNER TO graphql;
 
---
--- Name: days_date(public.days); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.days_date(d public.days) RETURNS date
-    LANGUAGE sql STABLE
-    AS $$ SELECT d.start_date::date $$;
-
-
-ALTER FUNCTION public.days_date(d public.days) OWNER TO graphql;
 
 --
 -- Name: events; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.events (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     conference_id bigint NOT NULL,
     title character varying(255) NOT NULL,
     subtitle character varying(255),
@@ -268,75 +258,11 @@ CREATE TABLE public.events (
 ALTER TABLE public.events OWNER TO graphql;
 
 --
--- Name: days_events(public.days); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.days_events(d public.days) RETURNS public.events
-    LANGUAGE sql STABLE
-    AS $$
-SELECT e.*
-FROM events e
-WHERE d.conference_id = e.conference_id
-    AND e.start_date BETWEEN d.start_date AND d.end_date
-ORDER BY e.start_date;
-$$;
-
-
-ALTER FUNCTION public.days_events(d public.days) OWNER TO graphql;
-
---
--- Name: events_day(public.events); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.events_day(e public.events) RETURNS public.days
-    LANGUAGE sql STABLE
-    AS $$
-SELECT d.*
-FROM days d
-WHERE d.conference_id = e.conference_id
-  AND e.start_date BETWEEN d.start_date AND d.end_date
-ORDER BY d.index DESC
-LIMIT 1;
-$$;
-
-
-ALTER FUNCTION public.events_day(e public.events) OWNER TO graphql;
-
---
--- Name: events_day_index(public.events); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.events_day_index(e public.events) RETURNS smallint
-    LANGUAGE sql STABLE
-    AS $$
-SELECT d.index AS day
-FROM days d
-WHERE d.conference_id = e.conference_id
-  AND e.start_date BETWEEN d.start_date AND d.end_date
-ORDER BY day DESC
-LIMIT 1;
-$$;
-
-
-ALTER FUNCTION public.events_day_index(e public.events) OWNER TO graphql;
-
---
--- Name: events_duration_time(public.events); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.events_duration_time(e public.events) RETURNS text
-    LANGUAGE sql STABLE
-    AS $$ SELECT to_char(e.duration, 'HH24:MI') $$;
-
-
-ALTER FUNCTION public.events_duration_time(e public.events) OWNER TO graphql;
-
---
 -- Name: people; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.people (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     first_name character varying(255) DEFAULT ''::character varying,
     last_name character varying(255) DEFAULT ''::character varying,
     public_name character varying(255) NOT NULL,
@@ -358,85 +284,11 @@ CREATE TABLE public.people (
 ALTER TABLE public.people OWNER TO graphql;
 
 --
--- Name: events_persons(public.events, public.event_role[]); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.events_persons(e public.events, roles public.event_role[]) RETURNS SETOF public.people
-    LANGUAGE sql STABLE
-    AS $$
-    SELECT p.* FROM people p, event_people ep
-    WHERE e.id = ep.event_id AND ep.person_id = p.id AND ep.event_role IN( SELECT
-            unnest( CASE WHEN roles IS NULL
-                    THEN ARRAY['speaker', 'moderator']::event_role[]
-                    ELSE roles
-                END
-            )::event_role
-    )
-$$;
-
-
-ALTER FUNCTION public.events_persons(e public.events, roles public.event_role[]) OWNER TO graphql;
-
---
--- Name: events_room_name(public.events); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.events_room_name(e public.events) RETURNS text
-    LANGUAGE sql STABLE
-    AS $$
-SELECT r.name
-FROM rooms r
-WHERE r.conference_id = e.conference_id
-  AND r.id = e.room_id
-$$;
-
-
-ALTER FUNCTION public.events_room_name(e public.events) OWNER TO graphql;
-
---
--- Name: events_start_time(public.events); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.events_start_time(e public.events) RETURNS text
-    LANGUAGE sql STABLE
-    AS $$ SELECT to_char(e.start_date, 'HH24:MI') $$;
-
-
-ALTER FUNCTION public.events_start_time(e public.events) OWNER TO graphql;
-
---
--- Name: send_change_event(); Type: FUNCTION; Schema: public; Owner: graphql
---
-
-CREATE FUNCTION public.send_change_event() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-      DECLARE
-        notification json;
-      BEGIN
-
-        notification := json_build_object(
-          'table', TG_TABLE_NAME,
-          'action', TG_OP /*,
-          'old', CASE WHEN OLD IS NOT NULL THEN row_to_json(OLD),
-          'new', NEW AND row_to_json(NEW)*/
-        );
-
-        PERFORM pg_notify('change', notification::text);
-
-        RETURN NULL;
-      END;
-    $$;
-
-
-ALTER FUNCTION public.send_change_event() OWNER TO graphql;
-
---
 -- Name: conferences; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.conferences (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     acronym character varying(255) NOT NULL,
     title character varying(255) NOT NULL,
     timezone character varying(255) DEFAULT 'Berlin'::character varying NOT NULL,
@@ -458,54 +310,13 @@ CREATE TABLE public.conferences (
 
 ALTER TABLE public.conferences OWNER TO graphql;
 
---
--- Name: conferences_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.conferences_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.conferences_id_seq OWNER TO graphql;
-
---
--- Name: conferences_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.conferences_id_seq OWNED BY public.conferences.id;
-
-
---
--- Name: days_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.days_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.days_id_seq OWNER TO graphql;
-
---
--- Name: days_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.days_id_seq OWNED BY public.days.id;
-
 
 --
 -- Name: event_people; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.event_people (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     event_id integer NOT NULL,
     person_id integer NOT NULL,
     event_role public.event_role DEFAULT 'speaker'::public.event_role NOT NULL,
@@ -521,54 +332,13 @@ CREATE TABLE public.event_people (
 
 ALTER TABLE public.event_people OWNER TO graphql;
 
---
--- Name: event_people_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.event_people_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.event_people_id_seq OWNER TO graphql;
-
---
--- Name: event_people_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.event_people_id_seq OWNED BY public.event_people.id;
-
-
---
--- Name: events_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.events_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.events_id_seq OWNER TO graphql;
-
---
--- Name: events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.events_id_seq OWNED BY public.events.id;
-
 
 --
 -- Name: languages; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.languages (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     code character varying(255),
     attachable_id integer,
     attachable_type character varying(255),
@@ -580,54 +350,12 @@ CREATE TABLE public.languages (
 ALTER TABLE public.languages OWNER TO graphql;
 
 --
--- Name: languages_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.languages_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.languages_id_seq OWNER TO graphql;
-
---
--- Name: languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.languages_id_seq OWNED BY public.languages.id;
-
-
---
--- Name: people_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.people_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.people_id_seq OWNER TO graphql;
-
---
--- Name: people_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.people_id_seq OWNED BY public.people.id;
-
-
---
 -- Name: rooms; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.rooms (
-    id bigint NOT NULL,
-    conference_id integer NOT NULL,
+    id bigserial NOT NULL,
+    conference_id bigint NOT NULL,
     name character varying(255) NOT NULL,
     size integer,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
@@ -639,33 +367,12 @@ CREATE TABLE public.rooms (
 ALTER TABLE public.rooms OWNER TO graphql;
 
 --
--- Name: rooms_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.rooms_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rooms_id_seq OWNER TO graphql;
-
---
--- Name: rooms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.rooms_id_seq OWNED BY public.rooms.id;
-
-
---
 -- Name: tracks; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.tracks (
-    id bigint NOT NULL,
-    conference_id integer,
+    id bigserial NOT NULL,
+    conference_id bigint,
     name character varying(255) NOT NULL,
     created_at timestamp without time zone DEFAULT '2018-10-07 14:06:49.211567'::timestamp without time zone NOT NULL,
     updated_at timestamp without time zone,
@@ -675,33 +382,13 @@ CREATE TABLE public.tracks (
 
 ALTER TABLE public.tracks OWNER TO graphql;
 
---
--- Name: tracks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.tracks_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.tracks_id_seq OWNER TO graphql;
-
---
--- Name: tracks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.tracks_id_seq OWNED BY public.tracks.id;
-
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.users (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     email character varying(255) DEFAULT ''::character varying NOT NULL,
     reset_password_token character varying(255),
     remember_created_at timestamp without time zone,
@@ -729,39 +416,18 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO graphql;
 
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.users_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.users_id_seq OWNER TO graphql;
-
---
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
-
-
---
 -- Name: versions; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.versions (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     item_type character varying(255) NOT NULL,
     item_id integer NOT NULL,
     event character varying(255) NOT NULL,
     whodunnit character varying(255),
     object text,
     created_at timestamp with time zone,
-    conference_id integer,
+    conference_id bigint,
     associated_id integer,
     associated_type character varying(255),
     object_changes text
@@ -769,21 +435,6 @@ CREATE TABLE public.versions (
 
 
 ALTER TABLE public.versions OWNER TO graphql;
-
---
--- Name: versions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.versions_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.versions_id_seq OWNER TO graphql;
-
 
 --
 -- Name: conferences conferences_acronym_key; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -1013,6 +664,165 @@ CREATE UNIQUE INDEX index_users_on_unlock_token ON public.users USING btree (unl
 CREATE INDEX index_versions_on_item_type_and_item_id ON public.versions USING btree (item_type, item_id);
 
 
+
+
+
+
+
+--
+-- Name: days_date(public.days); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.days_date(d public.days) RETURNS date
+    LANGUAGE sql STABLE
+    AS $$ SELECT d.start_date::date $$;
+
+
+ALTER FUNCTION public.days_date(d public.days) OWNER TO graphql;
+
+
+--
+-- Name: days_events(public.days); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.days_events(d public.days) RETURNS public.events
+    LANGUAGE sql STABLE
+    AS $$
+SELECT e.*
+FROM events e
+WHERE d.conference_id = e.conference_id
+    AND e.start_date BETWEEN d.start_date AND d.end_date
+ORDER BY e.start_date;
+$$;
+
+
+ALTER FUNCTION public.days_events(d public.days) OWNER TO graphql;
+
+--
+-- Name: events_day(public.events); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.events_day(e public.events) RETURNS public.days
+    LANGUAGE sql STABLE
+    AS $$
+SELECT d.*
+FROM days d
+WHERE d.conference_id = e.conference_id
+  AND e.start_date BETWEEN d.start_date AND d.end_date
+ORDER BY d.index DESC
+LIMIT 1;
+$$;
+
+
+ALTER FUNCTION public.events_day(e public.events) OWNER TO graphql;
+
+--
+-- Name: events_day_index(public.events); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.events_day_index(e public.events) RETURNS smallint
+    LANGUAGE sql STABLE
+    AS $$
+SELECT d.index AS day
+FROM days d
+WHERE d.conference_id = e.conference_id
+  AND e.start_date BETWEEN d.start_date AND d.end_date
+ORDER BY day DESC
+LIMIT 1;
+$$;
+
+
+ALTER FUNCTION public.events_day_index(e public.events) OWNER TO graphql;
+
+--
+-- Name: events_duration_time(public.events); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.events_duration_time(e public.events) RETURNS text
+    LANGUAGE sql STABLE
+    AS $$ SELECT to_char(e.duration, 'HH24:MI') $$;
+
+
+ALTER FUNCTION public.events_duration_time(e public.events) OWNER TO graphql;
+
+--
+-- Name: events_persons(public.events, public.event_role[]); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.events_persons(e public.events, roles public.event_role[]) RETURNS SETOF public.people
+    LANGUAGE sql STABLE
+    AS $$
+    SELECT p.* FROM people p, event_people ep
+    WHERE e.id = ep.event_id AND ep.person_id = p.id AND ep.event_role IN( SELECT
+            unnest( CASE WHEN roles IS NULL
+                    THEN ARRAY['speaker', 'moderator']::event_role[]
+                    ELSE roles
+                END
+            )::event_role
+    )
+$$;
+
+
+ALTER FUNCTION public.events_persons(e public.events, roles public.event_role[]) OWNER TO graphql;
+
+--
+-- Name: events_room_name(public.events); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.events_room_name(e public.events) RETURNS text
+    LANGUAGE sql STABLE
+    AS $$
+SELECT r.name
+FROM rooms r
+WHERE r.conference_id = e.conference_id
+  AND r.id = e.room_id
+$$;
+
+
+ALTER FUNCTION public.events_room_name(e public.events) OWNER TO graphql;
+
+--
+-- Name: events_start_time(public.events); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.events_start_time(e public.events) RETURNS text
+    LANGUAGE sql STABLE
+    AS $$ SELECT to_char(e.start_date, 'HH24:MI') $$;
+
+
+ALTER FUNCTION public.events_start_time(e public.events) OWNER TO graphql;
+
+--
+-- Name: send_change_event(); Type: FUNCTION; Schema: public; Owner: graphql
+--
+
+CREATE OR REPLACE FUNCTION public.send_change_event() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+      DECLARE
+        notification json;
+      BEGIN
+
+        notification := json_build_object(
+          'table', TG_TABLE_NAME,
+          'action', TG_OP /*,
+          'old', CASE WHEN OLD IS NOT NULL THEN row_to_json(OLD),
+          'new', NEW AND row_to_json(NEW)*/
+        );
+
+        PERFORM pg_notify('change', notification::text);
+
+        RETURN NULL;
+      END;
+    $$;
+
+
+ALTER FUNCTION public.send_change_event() OWNER TO graphql;
+
+
+
+
+
 --
 -- Name: conferences conference_before_change_event_trigger; Type: TRIGGER; Schema: public; Owner: postgres
 --
@@ -1181,3 +991,13 @@ ALTER TABLE ONLY public.versions
 -- PostgreSQL database dump complete
 --
 
+
+GRANT SELECT ON TABLE conferences TO viewer;
+GRANT SELECT ON TABLE days TO viewer;
+GRANT SELECT ON TABLE events TO viewer;
+GRANT SELECT ON TABLE languages TO viewer;
+GRANT SELECT ON TABLE event_people TO viewer;
+GRANT SELECT ON TABLE people TO viewer;
+GRANT SELECT ON TABLE rooms TO viewer;
+GRANT SELECT ON TABLE tracks TO viewer;
+GRANT SELECT ON TABLE versions TO viewer;
