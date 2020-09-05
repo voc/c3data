@@ -12,9 +12,7 @@ CREATE ROLE viewer NOLOGIN;
 GRANT viewer TO graphql;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 SET statement_timeout = 0;
@@ -185,23 +183,17 @@ ALTER TYPE public.link OWNER TO graphql;
 -- Name: before_change(); Type: FUNCTION; Schema: public; Owner: graphql
 --
 
-CREATE OR REPLACE FUNCTION public.before_change() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-      DECLARE
-        notification json;
-      BEGIN
-        IF TG_OP <> 'DELETE' THEN
-            NEW.updated_at = now();
-        END IF;
-        RETURN NEW;
-      END;
-    $$;
+CREATE OR REPLACE FUNCTION before_change() RETURNS TRIGGER  LANGUAGE plpgsql AS $$
+  BEGIN
+    IF TG_OP <> 'DELETE' THEN
+      NEW.updated_at = now();
+      RETURN NEW;
+    END IF;
+    RETURN OLD;
+  END;
+$$;
 
 ALTER FUNCTION public.before_change() OWNER TO graphql;
-
-SET default_tablespace = '';
-SET default_with_oids = false;
 
 --
 -- Name: days; Type: TABLE; Schema: public; Owner: postgres
@@ -436,6 +428,20 @@ CREATE TABLE public.versions (
 
 ALTER TABLE public.versions OWNER TO graphql;
 
+
+
+CREATE TABLE tags (
+    id bigserial NOT NULL,
+    name character varying(255),
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    color character varying(255) DEFAULT 'fefd7f'::character varying
+);
+COMMENT ON COLUMN tags.id IS 'Wikidata Q number, or other identifier when there is no item';
+
+ALTER TABLE tags OWNER TO graphql;
+GRANT SELECT ON TABLE tags TO viewer;
+
 --
 -- Name: conferences conferences_acronym_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
@@ -662,10 +668,6 @@ CREATE UNIQUE INDEX index_users_on_unlock_token ON public.users USING btree (unl
 --
 
 CREATE INDEX index_versions_on_item_type_and_item_id ON public.versions USING btree (item_type, item_id);
-
-
-
-
 
 
 
@@ -995,9 +997,9 @@ ALTER TABLE ONLY public.versions
 GRANT SELECT ON TABLE conferences TO viewer;
 GRANT SELECT ON TABLE days TO viewer;
 GRANT SELECT ON TABLE events TO viewer;
-GRANT SELECT ON TABLE languages TO viewer;
 GRANT SELECT ON TABLE event_people TO viewer;
 GRANT SELECT ON TABLE people TO viewer;
 GRANT SELECT ON TABLE rooms TO viewer;
 GRANT SELECT ON TABLE tracks TO viewer;
+GRANT SELECT ON TABLE languages TO viewer;
 GRANT SELECT ON TABLE versions TO viewer;
