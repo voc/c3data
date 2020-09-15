@@ -1,64 +1,57 @@
-
-
-
-
 query schedule {
- conferenceByAcronym(acronym: "35C3") {
-   acronym
-   title
-   start: startDate
-   end: endDate
-   days: daysByConferenceId(orderBy:INDEX_ASC) {
-     nodes {
-       index
-       date
-       startDate
-       endDate
-     }
-   }
-   rooms: roomsByConferenceId {
-     nodes {
-       name
-     }
-   }
-   events: eventsByConferenceId {
-     nodes {
-       id: localId
-       guid
-       dayIndex
-       roomName
-       logo
-       startDate
-       startTime
-       duration: durationTime
-       slug
-       title
-       subtitle
-       track: trackByTrackId {
-         name
-       }
-       eventType
-       language
-       abstract
-       description
-       recordingLicense
-       doNotRecord
-       persons {
-         nodes {
-           id
-           publicName
-         }
-       }
-       links {
-         title
-         url
-       }
-       attachments {
-         title
-         url
-       }
-     }
-   }
- }
+  conferences {
+    nodes {
+      acronym
+    }
+  }
+  conference: conferenceByAcronym(acronym: "36c3") {
+    acronym
+    title
+    start: startDate
+    end: endDate
+    rooms {
+      nodes {
+        name
+      }
+    }
+    events {
+      totalCount
+      nodes {
+        id: localId
+        guid
+        url
+        dayIndex
+        roomName
+        logo
+        startDate
+        startTime
+        duration: durationTime
+        slug
+        title
+        subtitle
+        track 
+        eventType
+        language
+        abstract
+        description
+        recordingLicense
+        doNotRecord
+        persons {
+          nodes {
+            guid
+            publicName
+          }
+        }
+        links {
+          title
+          url
+        }
+        attachments {
+          title
+          url
+        }
+      }
+    }
+  }
 }
 
