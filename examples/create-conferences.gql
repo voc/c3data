@@ -1,0 +1,78 @@
+mutation createConference {
+   createConference(input: {
+    conference: {
+      acronym: "35C3"
+      title: "35th Chaos Communication Congress"
+      startDate: "2018-12-27"
+      endDate: "2018-12-30"
+    }
+  }) { conference {id} }
+}
+
+
+# query foo {
+#   conferenceByAcronym(acronym: "35C3") {
+#     id
+#   }
+# }
+
+mutation createDay {
+   createDay(input: {
+    day: {
+      conferenceId: "7"
+      index: 1
+      startDate: "2018-12-27T11:00:00+01:00"
+      endDate: "2018-12-28T03:00:00+01:00"
+    }
+  }) { day { id } }
+}
+
+
+
+# alternative with nested mutation plugin
+# c.f. https://www.npmjs.com/package/postgraphile-plugin-nested-mutations
+
+
+mutation createConferenceAndDays {
+  createConference(
+    input: {
+      conference: {
+        acronym: "35C3"
+        title: "35th Chaos Communication Congress"
+        startDate: "2018-12-27"
+        endDate: "2018-12-30"
+        daysUsingId: {
+          create: [
+            {
+              index: 1
+              startDate: "2018-12-27T11:00:00+01:00"
+              endDate: "2018-12-28T03:00:00+01:00"
+            }
+            {
+              index: 2
+              startDate: "2018-12-28T11:00:00+01:00"
+              endDate: "2018-12-29T03:00:00+01:00"
+            }
+            {
+              index: 3
+              startDate: "2018-12-29T11:00:00+01:00"
+              endDate: "2018-12-30T03:00:00+01:00"
+            }
+            {
+              index: 4
+              startDate: "2018-12-30T11:00:00+01:00"
+              endDate: "2018-12-30T19:00:00+01:00"
+            }
+          ]
+        }
+      }
+    }
+  ) {
+    conference {
+      id
+    }
+  }
+}
+
+
+
