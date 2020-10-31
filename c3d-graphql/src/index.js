@@ -14,6 +14,7 @@ app.use(
 		graphiql: true,
 		enhanceGraphiql: true,
 		appendPlugins: [ConnectionFilterPlugin, SimplifyInflectorPlugin, NestedMutationsPlugin, UpsertPlugin],
+		dynamicJson: true,
 		graphileBuildOptions: {
 			// https://github.com/graphile-contrib/postgraphile-plugin-connection-filter#performance-and-security
 			connectionFilterComputedColumns: false,
