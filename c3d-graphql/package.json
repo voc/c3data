@@ -1,16 +1,16 @@
 {
   "dependencies": {
-    "@graphile-contrib/pg-simplify-inflector": "^6.0.0",
-    "express": "^4.17.1",
-    "graphile-build": "^4.8.0",
-    "graphile-build-pg": "^4.8.0",
+    "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
+    "express": "^4.17.2",
+    "graphile-build": "^4.12.2",
+    "graphile-build-pg": "^4.12.2",
     "graphile-upsert-plugin": "^1.0.0",
     "graphql": "^14.7.0",
-    "pg": "^7.18.2",
-    "postgraphile": "^4.8.0",
-    "postgraphile-core": "^4.8.0",
-    "postgraphile-plugin-connection-filter": "^2.0.0",
-    "postgraphile-plugin-nested-mutations": "^1.0.1"
+    "pg": "^8.7.1",
+    "postgraphile": "^4.12.8",
+    "postgraphile-core": "^4.12.2",
+    "postgraphile-plugin-connection-filter": "^2.2.2",
+    "postgraphile-plugin-nested-mutations": "^1.1.0"
   },
   "scripts": {
     "start": "node src/index.js",
