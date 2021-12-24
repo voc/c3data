@@ -9,10 +9,25 @@ const UpsertPlugin = require('graphile-upsert-plugin');
 
 const app = express();
 
+app.use('/graphql', (req, res, next) => {
+	if (req.method === 'GET') {
+		req.method = 'POST';
+		req.body = {
+			query: req.query.query,
+			operationName: req.query.operationName,
+			variables: req.query.variables,
+		};
+	}
+
+	next();
+});
+
+
 app.use(
 	postgraphile(process.env.DATABASE_URL || "postgres:///c3data", "public", {
 		graphiql: true,
 		enhanceGraphiql: true,
+		dynamicJson: true,
 		appendPlugins: [ConnectionFilterPlugin, SimplifyInflectorPlugin, NestedMutationsPlugin, UpsertPlugin],
 		graphileBuildOptions: {
 			// https://github.com/graphile-contrib/postgraphile-plugin-connection-filter#performance-and-security

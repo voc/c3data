@@ -1,11 +1,16 @@
 {
   "dependencies": {
-    "@graphile-contrib/pg-simplify-inflector": "^5.0.0-beta.1",
+    "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
+    "@graphile/pg-pubsub": "^4.11.0",
     "express": "^4.16.4",
+    "graphile-build": "^4.9.0",
+    "graphile-build-pg": "^4.9.2",
     "graphile-upsert-plugin": "^1.0.0",
+    "graphql": "^14.0.2",
     "pg": "^7.17.1",
-    "postgraphile": "^4.4.3",
-    "postgraphile-plugin-connection-filter": "^1.0.0-beta.20",
+    "postgraphile": "^4.9.2",
+    "postgraphile-core": "^4.9.2",
+    "postgraphile-plugin-connection-filter": "^2.1.0",
     "postgraphile-plugin-nested-mutations": "^1.0.1"
   },
   "scripts": {

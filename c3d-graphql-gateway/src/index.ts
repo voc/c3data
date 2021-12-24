@@ -39,6 +39,7 @@ async function run() {
 					'editor.theme': 'dark',
 					'editor.cursorShape': 'line', // possible values: 'line', 'block', 'underline'
 				},
+				shareEnabled: true,
 			  }
 			: false;
 

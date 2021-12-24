@@ -1,10 +1,14 @@
 {
   "dependencies": {
-    "node-pg-migrate": "^3.14.0",
+    "node-pg-migrate": "^4.2.2",
     "pg": "^7.6.1"
   },
   "scripts": {
-    "migrate": "node-pg-migrate",
+    "migrate": "node-pg-migrate up --compiler=ts:ts-node/register",
     "migration:new": "DATABASE_URL=postgres node-pg-migrate create migration --migration-file-language ts"
+  },
+  "devDependencies": {
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5"
   }
 }
