@@ -23,3 +23,7 @@ yarn-error.log*
 
 # data folder of postgres etc.
 /data
+node_modules
+dist
+.env.local
+.vscode
