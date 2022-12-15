@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
-    "express": "^4.17.2",
+    "express": "^4.17.3",
     "graphile-build": "^4.12.2",
     "graphile-build-pg": "^4.12.2",
     "graphile-upsert-plugin": "^1.0.0",
